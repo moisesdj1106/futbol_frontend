@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../hooks/useFavorites';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 import API_URL from '../config';
 
 const COMPETITIONS = [
@@ -57,6 +58,7 @@ function TeamCard({ team, isFav, onToggle }) {
 export default function Teams() {
   const { token } = useAuth();
   const { isFav, toggle } = useFavorites();
+  const { permission, subscribed, loading: pushLoading, supported, subscribe, unsubscribe } = usePushNotifications();
   const [competition, setCompetition] = useState('PL');
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -81,6 +83,49 @@ export default function Teams() {
     <div className="page-wrapper">
       <h1 className="page-title">EQUIPOS <span>& FAVORITOS</span></h1>
       <p className="page-subtitle">Sigue tus equipos y mantente al día con sus partidos</p>
+
+      {/* Banner de notificaciones */}
+      {supported && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: subscribed ? 'rgba(0,255,135,0.06)' : 'rgba(255,200,0,0.05)',
+          border: `1px solid ${subscribed ? 'var(--border)' : 'rgba(255,200,0,0.2)'}`,
+          borderRadius: 12, padding: '0.9rem 1.2rem', marginBottom: '1.5rem',
+          flexWrap: 'wrap', gap: '0.8rem',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <span style={{ fontSize: '1.3rem' }}>{subscribed ? '🔔' : '🔕'}</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
+                {subscribed ? 'Notificaciones activadas' : 'Activa las notificaciones'}
+              </div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
+                {subscribed
+                  ? 'Recibirás alertas de goles y tarjetas de tus equipos'
+                  : 'Recibe alertas de goles y tarjetas aunque tengas otra pestaña abierta'}
+              </div>
+            </div>
+          </div>
+          {permission === 'denied' ? (
+            <div style={{ color: 'var(--red)', fontSize: '0.8rem' }}>Bloqueado en el navegador</div>
+          ) : (
+            <button
+              onClick={subscribed ? unsubscribe : subscribe}
+              disabled={pushLoading}
+              style={{
+                padding: '0.5rem 1.2rem', borderRadius: 8, cursor: 'pointer',
+                border: `1px solid ${subscribed ? 'rgba(255,77,109,0.3)' : 'var(--green)'}`,
+                background: subscribed ? 'rgba(255,77,109,0.08)' : 'rgba(0,255,135,0.1)',
+                color: subscribed ? 'var(--red)' : 'var(--green)',
+                fontFamily: 'Rajdhani', fontWeight: 700, fontSize: '0.88rem',
+                transition: 'all 0.2s',
+              }}
+            >
+              {pushLoading ? '...' : subscribed ? 'Desactivar' : 'Activar notificaciones'}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Selector de liga */}
       <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>

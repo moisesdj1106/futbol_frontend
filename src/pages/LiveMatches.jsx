@@ -4,8 +4,7 @@ import { useFavorites } from '../hooks/useFavorites';
 import API_URL from '../config';
 
 function formatDate(utcDate) {
-  const d = new Date(utcDate);
-  return d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+  return new Date(utcDate).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 function formatTime(utcDate) {
   return new Date(utcDate).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
@@ -22,145 +21,226 @@ const STATUS_LABEL = {
 function MatchCard({ match, onSelect, selected }) {
   const isLive = match.status === 'IN_PLAY' || match.status === 'PAUSED';
   const status = STATUS_LABEL[match.status] || { label: match.status, color: 'var(--text-muted)' };
+  const home = match.score?.fullTime?.home ?? match.score?.halfTime?.home;
+  const away = match.score?.fullTime?.away ?? match.score?.halfTime?.away;
 
   return (
-    <div
-      onClick={() => onSelect(match)}
-      style={{
-        background: selected ? 'rgba(0,255,135,0.06)' : 'rgba(255,255,255,0.02)',
-        border: `1px solid ${selected ? 'var(--green)' : isLive ? 'rgba(255,77,109,0.3)' : 'rgba(255,255,255,0.07)'}`,
-        borderRadius: 14, padding: '1rem 1.2rem',
-        cursor: 'pointer', transition: 'all 0.2s',
-        position: 'relative', overflow: 'hidden',
-      }}
-    >
-      {isLive && (
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-          background: 'linear-gradient(90deg, var(--red), transparent)',
-          animation: 'pulse 2s infinite',
-        }} />
-      )}
+    <div onClick={() => onSelect(match)} style={{
+      background: selected ? 'rgba(0,255,135,0.06)' : 'rgba(255,255,255,0.02)',
+      border: `1px solid ${selected ? 'var(--green)' : isLive ? 'rgba(255,77,109,0.3)' : 'rgba(255,255,255,0.07)'}`,
+      borderRadius: 14, padding: '1rem 1.2rem',
+      cursor: 'pointer', transition: 'all 0.2s', position: 'relative', overflow: 'hidden',
+    }}>
+      {isLive && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, var(--red), transparent)' }} />}
 
-      {/* Liga */}
       <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.6rem', display: 'flex', justifyContent: 'space-between' }}>
         <span>{match.competition?.name}</span>
         <span style={{ color: status.color, fontFamily: 'Orbitron', fontSize: '0.65rem', fontWeight: 700 }}>
-          {isLive && <span style={{ marginRight: '0.3rem' }}>●</span>}
-          {isLive ? `${match.minute || ''}' ${status.label}` : status.label}
+          {isLive && '● '}{isLive && match.minute ? `${match.minute}'` : ''} {status.label}
         </span>
       </div>
 
-      {/* Equipos y marcador */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: '0.8rem' }}>
-        {/* Local */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          {match.homeTeam?.crest && <img src={match.homeTeam.crest} alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />}
-          <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{match.homeTeam?.shortName || match.homeTeam?.name}</span>
+          {match.homeTeam?.crest && <img src={match.homeTeam.crest} alt="" style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }} />}
+          <span style={{ fontWeight: 700, fontSize: '0.88rem' }}>{match.homeTeam?.shortName || match.homeTeam?.name}</span>
         </div>
 
-        {/* Marcador */}
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', minWidth: 70 }}>
           {match.status === 'SCHEDULED' ? (
-            <div style={{ fontFamily: 'Orbitron', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              {formatTime(match.utcDate)}
-            </div>
+            <div style={{ fontFamily: 'Orbitron', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{formatTime(match.utcDate)}</div>
           ) : (
-            <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '1.3rem', color: isLive ? 'var(--green)' : 'var(--text)' }}>
-              {match.score?.fullTime?.home ?? match.score?.halfTime?.home ?? '—'}
-              <span style={{ color: 'var(--text-muted)', margin: '0 0.3rem' }}>:</span>
-              {match.score?.fullTime?.away ?? match.score?.halfTime?.away ?? '—'}
+            <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '1.4rem', color: isLive ? 'var(--green)' : 'var(--text)' }}>
+              {home ?? '—'}<span style={{ color: 'var(--text-muted)', margin: '0 0.2rem' }}>:</span>{away ?? '—'}
             </div>
           )}
-          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-            {formatDate(match.utcDate)}
-          </div>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>{formatDate(match.utcDate)}</div>
         </div>
 
-        {/* Visitante */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', justifyContent: 'flex-end' }}>
-          <span style={{ fontWeight: 700, fontSize: '0.9rem', textAlign: 'right' }}>{match.awayTeam?.shortName || match.awayTeam?.name}</span>
-          {match.awayTeam?.crest && <img src={match.awayTeam.crest} alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />}
+          <span style={{ fontWeight: 700, fontSize: '0.88rem', textAlign: 'right' }}>{match.awayTeam?.shortName || match.awayTeam?.name}</span>
+          {match.awayTeam?.crest && <img src={match.awayTeam.crest} alt="" style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0 }} />}
         </div>
       </div>
     </div>
   );
 }
 
-function LiveDetail({ matchId }) {
+// ── Componente de alineación ──
+function LineupDisplay({ lineup, teamName, crest, side }) {
+  if (!lineup || !lineup.startXI) return (
+    <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1rem', fontSize: '0.85rem' }}>
+      Alineación no disponible
+    </div>
+  );
+
+  const starters = lineup.startXI.map(p => p.player);
+  const bench = lineup.bench?.map(p => p.player) || [];
+  const formation = lineup.formation || '';
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.8rem' }}>
+        {crest && <img src={crest} alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />}
+        <div>
+          <div style={{ fontFamily: 'Orbitron', fontSize: '0.8rem', color: 'var(--text)' }}>{teamName}</div>
+          {formation && <div style={{ color: 'var(--green)', fontSize: '0.7rem', fontFamily: 'Orbitron' }}>{formation}</div>}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '0.8rem' }}>
+        <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'Orbitron', letterSpacing: '1px', marginBottom: '0.4rem' }}>TITULARES</div>
+        {starters.map((p, i) => (
+          <div key={p.id || i} style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.35rem 0.6rem', borderRadius: 6, marginBottom: '0.2rem',
+            background: 'rgba(0,255,135,0.04)', border: '1px solid rgba(0,255,135,0.08)',
+          }}>
+            <span style={{ fontFamily: 'Orbitron', fontSize: '0.65rem', color: 'var(--green)', minWidth: 20 }}>{p.shirtNumber}</span>
+            <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>{p.name}</span>
+            <span style={{ marginLeft: 'auto', fontSize: '0.68rem', color: 'var(--text-muted)' }}>{p.position}</span>
+          </div>
+        ))}
+      </div>
+
+      {bench.length > 0 && (
+        <div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontFamily: 'Orbitron', letterSpacing: '1px', marginBottom: '0.4rem' }}>SUPLENTES</div>
+          {bench.map((p, i) => (
+            <div key={p.id || i} style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.3rem 0.6rem', borderRadius: 6, marginBottom: '0.2rem',
+              background: 'rgba(255,255,255,0.02)',
+            }}>
+              <span style={{ fontFamily: 'Orbitron', fontSize: '0.62rem', color: 'var(--text-muted)', minWidth: 20 }}>{p.shirtNumber}</span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{p.name}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Detalle completo del partido ──
+function MatchDetail({ matchId }) {
   const { token } = useAuth();
   const [data, setData] = useState(null);
+  const [tab, setTab] = useState('events');
   const intervalRef = useRef(null);
 
   const load = () =>
     fetch(`${API_URL}/api/teams/match/${matchId}`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json()).then(setData);
+      .then(r => r.json()).then(setData).catch(() => {});
 
   useEffect(() => {
+    setData(null);
+    setTab('events');
     load();
-    intervalRef.current = setInterval(load, 30000); // actualiza cada 30s
+    intervalRef.current = setInterval(load, 30000);
     return () => clearInterval(intervalRef.current);
   }, [matchId]);
 
-  if (!data) return <div style={{ color: 'var(--text-muted)', padding: '2rem', textAlign: 'center' }}>Cargando...</div>;
+  if (!data) return (
+    <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem' }}>
+      <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>⏳</div>Cargando...
+    </div>
+  );
 
   const isLive = data.status === 'IN_PLAY' || data.status === 'PAUSED';
-  const goals = (data.goals || []);
-  const bookings = (data.bookings || []);
+  const home = data.score?.fullTime?.home ?? data.score?.halfTime?.home ?? 0;
+  const away = data.score?.fullTime?.away ?? data.score?.halfTime?.away ?? 0;
+  const goals = data.goals || [];
+  const bookings = data.bookings || [];
+  const subs = data.substitutions || [];
+  const allEvents = [
+    ...goals.map(e => ({ ...e, _type: 'goal' })),
+    ...bookings.map(e => ({ ...e, _type: 'card' })),
+    ...subs.map(e => ({ ...e, _type: 'sub' })),
+  ].sort((a, b) => (a.minute || 0) - (b.minute || 0));
+
+  const homeLineup = data.lineups?.find(l => l.team?.id === data.homeTeam?.id);
+  const awayLineup = data.lineups?.find(l => l.team?.id === data.awayTeam?.id);
 
   return (
-    <div className="glass-card" style={{ marginTop: '1.5rem' }}>
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-        <div style={{ color: isLive ? 'var(--red)' : 'var(--text-muted)', fontFamily: 'Orbitron', fontSize: '0.7rem', letterSpacing: '3px', marginBottom: '0.5rem' }}>
+    <div className="glass-card">
+      {/* Marcador */}
+      <div style={{ textAlign: 'center', marginBottom: '1.2rem', paddingBottom: '1.2rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ color: isLive ? 'var(--red)' : 'var(--text-muted)', fontFamily: 'Orbitron', fontSize: '0.65rem', letterSpacing: '3px', marginBottom: '0.6rem' }}>
           {isLive ? `● EN VIVO · ${data.minute || 0}'` : STATUS_LABEL[data.status]?.label || data.status}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
           <div style={{ textAlign: 'center' }}>
-            {data.homeTeam?.crest && <img src={data.homeTeam.crest} alt="" style={{ width: 48, height: 48, objectFit: 'contain', marginBottom: '0.4rem' }} />}
-            <div style={{ fontFamily: 'Orbitron', fontSize: '0.8rem' }}>{data.homeTeam?.shortName}</div>
+            {data.homeTeam?.crest && <img src={data.homeTeam.crest} alt="" style={{ width: 44, height: 44, objectFit: 'contain', marginBottom: '0.3rem' }} />}
+            <div style={{ fontFamily: 'Orbitron', fontSize: '0.72rem' }}>{data.homeTeam?.shortName}</div>
           </div>
-          <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '2.5rem', color: isLive ? 'var(--green)' : 'var(--text)' }}>
-            {data.score?.fullTime?.home ?? data.score?.halfTime?.home ?? 0}
-            <span style={{ color: 'var(--text-muted)', margin: '0 0.5rem', fontSize: '1.5rem' }}>:</span>
-            {data.score?.fullTime?.away ?? data.score?.halfTime?.away ?? 0}
+          <div style={{ fontFamily: 'Orbitron', fontWeight: 900, fontSize: '2.8rem', color: isLive ? 'var(--green)' : 'var(--text)', lineHeight: 1 }}>
+            {home}<span style={{ color: 'var(--text-muted)', margin: '0 0.4rem', fontSize: '1.5rem' }}>:</span>{away}
           </div>
           <div style={{ textAlign: 'center' }}>
-            {data.awayTeam?.crest && <img src={data.awayTeam.crest} alt="" style={{ width: 48, height: 48, objectFit: 'contain', marginBottom: '0.4rem' }} />}
-            <div style={{ fontFamily: 'Orbitron', fontSize: '0.8rem' }}>{data.awayTeam?.shortName}</div>
+            {data.awayTeam?.crest && <img src={data.awayTeam.crest} alt="" style={{ width: 44, height: 44, objectFit: 'contain', marginBottom: '0.3rem' }} />}
+            <div style={{ fontFamily: 'Orbitron', fontSize: '0.72rem' }}>{data.awayTeam?.shortName}</div>
           </div>
         </div>
-        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem' }}>{data.competition?.name} · {formatDate(data.utcDate)}</div>
-        {isLive && <div style={{ color: 'var(--text-muted)', fontSize: '0.7rem', marginTop: '0.3rem' }}>Actualiza cada 30 segundos</div>}
+        <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: '0.5rem' }}>
+          {data.competition?.name} · {formatDate(data.utcDate)}
+          {isLive && <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem' }}>· actualiza cada 30s</span>}
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1rem' }}>
+        {[
+          { key: 'events', label: '📋 Eventos' },
+          { key: 'lineups', label: '👥 Alineaciones' },
+        ].map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)} style={{
+            padding: '0.4rem 1rem', borderRadius: 8, cursor: 'pointer',
+            border: `1px solid ${tab === t.key ? 'var(--green)' : 'rgba(255,255,255,0.08)'}`,
+            background: tab === t.key ? 'rgba(0,255,135,0.08)' : 'transparent',
+            color: tab === t.key ? 'var(--green)' : 'var(--text-muted)',
+            fontFamily: 'Rajdhani', fontWeight: 700, fontSize: '0.85rem',
+          }}>{t.label}</button>
+        ))}
       </div>
 
       {/* Eventos */}
-      {(goals.length > 0 || bookings.length > 0) && (
-        <div>
-          <div style={{ fontFamily: 'Orbitron', color: 'var(--green)', fontSize: '0.7rem', letterSpacing: '2px', marginBottom: '0.8rem' }}>EVENTOS</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            {[...goals.map(g => ({ ...g, type: 'GOAL' })), ...bookings]
-              .sort((a, b) => (a.minute || 0) - (b.minute || 0))
-              .map((ev, i) => (
-                <div key={i} style={{
-                  display: 'flex', alignItems: 'center', gap: '0.8rem',
-                  padding: '0.5rem 0.8rem', borderRadius: 8,
-                  background: ev.type === 'GOAL' ? 'rgba(0,255,135,0.05)' : 'rgba(255,200,0,0.04)',
-                  border: `1px solid ${ev.type === 'GOAL' ? 'rgba(0,255,135,0.12)' : 'rgba(255,200,0,0.1)'}`,
-                }}>
-                  <span style={{ fontFamily: 'Orbitron', fontSize: '0.68rem', color: 'var(--text-muted)', minWidth: 30 }}>{ev.minute}'</span>
-                  <span>{ev.type === 'GOAL' ? '⚽' : ev.card === 'RED' ? '🟥' : '🟨'}</span>
-                  <span style={{ flex: 1, fontSize: '0.88rem', fontWeight: 600 }}>{ev.scorer?.name || ev.player?.name}</span>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{ev.team?.name}</span>
+      {tab === 'events' && (
+        <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+          {allEvents.length === 0 ? (
+            <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem', fontSize: '0.88rem' }}>
+              Sin eventos registrados
+            </div>
+          ) : allEvents.map((ev, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', gap: '0.8rem',
+              padding: '0.5rem 0.7rem', borderRadius: 8, marginBottom: '0.3rem',
+              background: ev._type === 'goal' ? 'rgba(0,255,135,0.05)' : ev._type === 'card' ? 'rgba(255,200,0,0.04)' : 'rgba(255,255,255,0.02)',
+              border: `1px solid ${ev._type === 'goal' ? 'rgba(0,255,135,0.12)' : ev._type === 'card' ? 'rgba(255,200,0,0.1)' : 'rgba(255,255,255,0.04)'}`,
+            }}>
+              <span style={{ fontFamily: 'Orbitron', fontSize: '0.65rem', color: 'var(--text-muted)', minWidth: 28 }}>{ev.minute}'</span>
+              <span style={{ fontSize: '1rem' }}>
+                {ev._type === 'goal' ? '⚽' : ev._type === 'sub' ? '🔄' : ev.card === 'RED' ? '🟥' : '🟨'}
+              </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {ev.scorer?.name || ev.player?.name || ev.playerOut?.name}
                 </div>
-              ))}
-          </div>
+                {ev._type === 'sub' && ev.playerIn?.name && (
+                  <div style={{ fontSize: '0.72rem', color: 'var(--green)' }}>↑ {ev.playerIn.name}</div>
+                )}
+              </div>
+              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', flexShrink: 0 }}>{ev.team?.shortName || ev.team?.name}</span>
+            </div>
+          ))}
         </div>
       )}
 
-      {goals.length === 0 && bookings.length === 0 && (
-        <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1rem', fontSize: '0.9rem' }}>
-          Sin eventos registrados aún
+      {/* Alineaciones */}
+      {tab === 'lineups' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <LineupDisplay lineup={homeLineup} teamName={data.homeTeam?.name} crest={data.homeTeam?.crest} side="home" />
+          <LineupDisplay lineup={awayLineup} teamName={data.awayTeam?.name} crest={data.awayTeam?.crest} side="away" />
         </div>
       )}
     </div>
@@ -170,23 +250,21 @@ function LiveDetail({ matchId }) {
 export default function LiveMatches() {
   const { token } = useAuth();
   const { favorites } = useFavorites();
-  const [tab, setTab] = useState('favorites'); // favorites | live
+  const [tab, setTab] = useState('favorites');
   const [matches, setMatches] = useState([]);
   const [liveMatches, setLiveMatches] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Partidos de favoritos
   useEffect(() => {
-    if (tab !== 'favorites' || favorites.length === 0) return;
+    if (tab !== 'favorites') return;
     setLoading(true);
     fetch(`${API_URL}/api/teams/favorites/matches`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
       .then(data => setMatches(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
-  }, [tab, favorites, token]);
+  }, [tab, favorites.length, token]);
 
-  // Partidos en vivo globales
   useEffect(() => {
     if (tab !== 'live') return;
     setLoading(true);
@@ -203,7 +281,6 @@ export default function LiveMatches() {
       <h1 className="page-title">PARTIDOS <span>EN VIVO</span></h1>
       <p className="page-subtitle">Sigue los partidos de tus equipos favoritos en tiempo real</p>
 
-      {/* Tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
         {[
           { key: 'favorites', label: '⭐ Mis Equipos' },
@@ -215,7 +292,6 @@ export default function LiveMatches() {
             background: tab === t.key ? 'rgba(0,255,135,0.1)' : 'transparent',
             color: tab === t.key ? 'var(--green)' : 'var(--text-muted)',
             cursor: 'pointer', fontWeight: 700, fontFamily: 'Rajdhani', fontSize: '0.95rem',
-            transition: 'all 0.2s',
           }}>{t.label}</button>
         ))}
       </div>
@@ -228,7 +304,7 @@ export default function LiveMatches() {
         }}>
           <div style={{ fontSize: '3rem', marginBottom: '0.8rem' }}>⭐</div>
           <div style={{ fontFamily: 'Orbitron', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Sin equipos favoritos</div>
-          <div style={{ fontSize: '0.88rem' }}>Ve a la sección Equipos y sigue los que te gusten</div>
+          <div>Ve a la sección Equipos y sigue los que te gusten</div>
         </div>
       )}
 
@@ -237,26 +313,21 @@ export default function LiveMatches() {
           <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⏳</div>Cargando partidos...
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: selectedMatch ? '1fr 1fr' : '1fr', gap: '1rem' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            {displayMatches.length === 0 && !loading && favorites.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: selectedMatch ? '1fr 1fr' : '1fr', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+            {displayMatches.length === 0 && !loading && (tab === 'live' || favorites.length > 0) && (
               <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
-                No hay partidos próximos para tus equipos
+                {tab === 'live' ? 'No hay partidos en vivo ahora mismo' : 'No hay partidos próximos para tus equipos'}
               </div>
             )}
             {displayMatches.map(m => (
-              <MatchCard
-                key={m.id}
-                match={m}
-                selected={selectedMatch?.id === m.id}
-                onSelect={setSelectedMatch}
-              />
+              <MatchCard key={m.id} match={m} selected={selectedMatch?.id === m.id} onSelect={setSelectedMatch} />
             ))}
           </div>
 
           {selectedMatch && (
             <div>
-              <LiveDetail matchId={selectedMatch.id} />
+              <MatchDetail matchId={selectedMatch.id} />
             </div>
           )}
         </div>
