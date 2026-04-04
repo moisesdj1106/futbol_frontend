@@ -34,8 +34,8 @@ export default function Register() {
     <div className="auth-bg">
       <div className="auth-card">
         <div className="auth-logo">
-          <div className="icon">⚽</div>
-          <h1>FUTBOLSTATS</h1>
+          
+          <h1>FUTBOL - STARS ⚽</h1>
           <p>Crea tu cuenta</p>
         </div>
 

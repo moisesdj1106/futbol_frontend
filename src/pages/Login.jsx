@@ -35,8 +35,8 @@ export default function Login() {
     <div className="auth-bg">
       <div className="auth-card">
         <div className="auth-logo">
-          <div className="icon">⚽</div>
-          <h1>FUTBOLSTARS</h1>
+          
+          <h1>FUTBOL - STARS ⚽</h1>
           <p>Estadísticas · Versus · Alineaciones</p>
         </div>
 

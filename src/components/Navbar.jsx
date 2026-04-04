@@ -47,7 +47,7 @@ export default function Navbar() {
           display: 'flex', alignItems: 'center', gap: '0.4rem',
           textShadow: '0 0 20px rgba(0,255,135,0.4)',
         }}>
-          ⚽ <span>FUTBOLSTATS</span>
+          ⚽ <span>FUTBOL - STARS</span>
         </NavLink>
 
         {/* Links desktop — centrados */}
