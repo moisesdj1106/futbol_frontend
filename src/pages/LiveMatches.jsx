@@ -153,6 +153,14 @@ function MatchDetail({ matchId }) {
     </div>
   );
 
+  if (data.status === 'UNAVAILABLE') return (
+    <div className="glass-card" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+      <div style={{ fontSize: '2rem', marginBottom: '0.8rem' }}>🔒</div>
+      <div style={{ fontFamily: 'Orbitron', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Detalle no disponible</div>
+      <div style={{ fontSize: '0.82rem' }}>Este partido no tiene información detallada disponible en el plan actual de la API</div>
+    </div>
+  );
+
   const isLive = data.status === 'IN_PLAY' || data.status === 'PAUSED';
   const home = data.score?.fullTime?.home ?? data.score?.halfTime?.home ?? 0;
   const away = data.score?.fullTime?.away ?? data.score?.halfTime?.away ?? 0;
@@ -220,7 +228,7 @@ function MatchDetail({ matchId }) {
               </div>
               {isLive
                 ? 'Sin eventos registrados aún en este partido'
-                : match.status === 'SCHEDULED'
+                : data.status === 'SCHEDULED'
                   ? 'El partido aún no ha comenzado'
                   : 'No hay eventos disponibles para este partido'}
             </div>
