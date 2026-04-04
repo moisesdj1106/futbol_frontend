@@ -701,16 +701,80 @@ select.form-control option { background: var(--dark3); color: var(--text); }
   background: rgba(0,255,135,0.04);
 }
 
+/* ── TABLE RESPONSIVE WRAPPER ── */
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-responsive .dark-table { min-width: 600px; }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .versus-container { grid-template-columns: 1fr; }
   .versus-divider { padding: 0.5rem 0; flex-direction: row; justify-content: center; }
 }
-@media (max-width: 600px) {
-  .page-wrapper { padding: 1.5rem 1rem; }
-  .players-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
-  .page-title { font-size: 1.4rem; }
-  .navbar { padding: 0 1rem; }
+
+@media (max-width: 768px) {
+  /* Page */
+  .page-wrapper { padding: 1.2rem 1rem; }
+  .page-title { font-size: 1.3rem; letter-spacing: 1px; }
+  .page-subtitle { font-size: 0.88rem; margin-bottom: 1.2rem; }
+
+  /* Grid de jugadores: 2 columnas en móvil */
+  .players-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+  .player-img-wrap { height: 160px; }
+
+  /* Auth */
+  .auth-card { padding: 2rem 1.2rem; margin: 1rem; }
+  .auth-logo h1 { font-size: 1.4rem; }
+
+  /* Tablas: scroll horizontal */
+  .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .dark-table { min-width: 560px; }
+  .dark-table th, .dark-table td { padding: 0.7rem 0.8rem; font-size: 0.82rem; }
+
+  /* Glass card */
+  .glass-card { padding: 1rem; }
+
+  /* Modal */
+  .modal-box { padding: 1.2rem; border-radius: 16px; }
+
+  /* Versus */
+  .versus-container { grid-template-columns: 1fr; gap: 1rem; }
+  .versus-divider { flex-direction: row; justify-content: center; padding: 0.3rem 0; }
+
+  /* Lineup: campo + lista en columna */
+  .lineup-grid { grid-template-columns: 1fr !important; }
+  .field { min-height: 420px; padding: 1.5rem 0.8rem; }
+  .field-row { gap: 0.6rem; margin-bottom: 1.2rem; }
+  .field-player .avatar { width: 44px; height: 44px; font-size: 1.1rem; }
+  .field-player .p-name { font-size: 0.58rem; max-width: 52px; }
+  .field-player .p-rating { font-size: 0.55rem; }
+
+  /* Match: paneles en columna */
+  .match-teams-grid { grid-template-columns: 1fr !important; }
+  .match-stats-grid { grid-template-columns: 1fr !important; }
+
+  /* Filtros: scroll horizontal */
+  .filter-row { overflow-x: auto; padding-bottom: 0.3rem; flex-wrap: nowrap !important; }
+  .filter-row::-webkit-scrollbar { height: 3px; }
+
+  /* Botones */
+  .btn-primary-custom { font-size: 0.75rem; padding: 0.75rem 1.2rem; }
+  .filter-pill { padding: 0.4rem 0.9rem; font-size: 0.82rem; white-space: nowrap; }
+  .formation-pill { padding: 0.45rem 0.9rem; font-size: 0.72rem; }
+}
+
+@media (max-width: 480px) {
+  .players-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  .player-img-wrap { height: 130px; }
+  .overall-badge { width: 36px; height: 36px; font-size: 0.8rem; border-radius: 8px; }
+  .pos-badge { font-size: 0.55rem; padding: 0.15rem 0.35rem; }
+  .player-name { font-size: 0.75rem; }
+  .player-club { font-size: 0.72rem; }
+  .mini-stat .val { font-size: 0.75rem; }
+  .mini-stat .lbl { font-size: 0.55rem; }
+
+  .page-title { font-size: 1.1rem; }
+  .auth-logo h1 { font-size: 1.2rem; letter-spacing: 2px; }
+  .winner-name { font-size: 1.3rem; }
 }
 
 @keyframes fadeInUp {
@@ -726,4 +790,10 @@ select.form-control option { background: var(--dark3); color: var(--text); }
 @keyframes modalIn {
   from { opacity: 0; transform: scale(0.92) translateY(20px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── MODAL RESPONSIVE ── */
+@media (max-width: 768px) {
+  .modal-overlay { padding: 0.5rem; align-items: flex-end !important; }
+  .modal-box { border-radius: 20px 20px 0 0; max-height: 85vh; }
 }

@@ -67,6 +67,7 @@ export default function PlayerModal({ player, onClose }) {
         flexDirection: 'column',
         boxShadow: '0 40px 100px rgba(0,0,0,0.7), 0 0 60px rgba(0,255,135,0.06)',
         animation: 'modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+        margin: '0 auto',
       }}>
         {/* Header con imagen */}
         <div style={{

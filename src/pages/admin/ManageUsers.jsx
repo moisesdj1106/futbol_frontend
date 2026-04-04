@@ -73,8 +73,8 @@ export default function ManageUsers() {
         </div>
       </div>
 
-      <div className="glass-card">
-        <table className="dark-table">
+      <div className="glass-card" style={{ overflowX: 'auto' }}>
+        <table className="dark-table" style={{ minWidth: 500 }}>
           <thead>
             <tr><th>USUARIO</th><th>EMAIL</th><th>ROL</th><th>REGISTRO</th><th>ACCIONES</th></tr>
           </thead>

@@ -132,7 +132,7 @@ export default function Lineup() {
 
       {/* Resultado */}
       {lineup && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '2rem', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '2rem', alignItems: 'start' }} className="lineup-grid">
           {/* Campo */}
           <div>
             <div style={{ textAlign: 'center', marginBottom: '1rem' }}>

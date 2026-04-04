@@ -370,7 +370,7 @@ export default function Match() {
 
       {/* Stats finales */}
       {simDone && result && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }} className="match-stats-grid">
           {[1, 2].map(n => {
             const stats = result.stats[`team${n}`];
             const color = TEAM_COLORS[n];
@@ -398,7 +398,7 @@ export default function Match() {
       )}
 
       {/* Paneles de equipos + botones */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }} className="match-teams-grid">
         {[1, 2].map(n => {
           const team = n === 1 ? team1 : team2;
           const setTeam = n === 1 ? setTeam1 : setTeam2;

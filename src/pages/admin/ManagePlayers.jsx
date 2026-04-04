@@ -108,8 +108,8 @@ export default function ManagePlayers() {
         </div>
       </div>
 
-      <div className="glass-card">
-        <table className="dark-table">
+      <div className="glass-card" style={{ overflowX: 'auto' }}>
+        <table className="dark-table" style={{ minWidth: 600 }}>
           <thead>
             <tr>
               <th>NOMBRE</th><th>POS</th><th>CLUB</th><th>NACIÓN</th><th>OVERALL</th><th>ERA</th><th>ACCIONES</th>
