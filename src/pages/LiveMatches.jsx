@@ -67,10 +67,16 @@ function MatchCard({ match, onSelect, selected }) {
 }
 
 // ── Componente de alineación ──
-function LineupDisplay({ lineup, teamName, crest, side }) {
-  if (!lineup || !lineup.startXI) return (
-    <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1rem', fontSize: '0.85rem' }}>
-      Alineación no disponible
+function LineupDisplay({ lineup, teamName, crest }) {
+  if (!lineup || !lineup.startXI || lineup.startXI.length === 0) return (
+    <div style={{
+      textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem',
+      background: 'rgba(255,255,255,0.02)', borderRadius: 10,
+      border: '1px dashed rgba(255,255,255,0.08)', fontSize: '0.82rem',
+    }}>
+      <div style={{ fontSize: '1.5rem', marginBottom: '0.4rem' }}>📋</div>
+      Alineación no publicada aún.<br/>
+      <span style={{ fontSize: '0.75rem' }}>Disponible ~1h antes del partido</span>
     </div>
   );
 
@@ -208,8 +214,15 @@ function MatchDetail({ matchId }) {
       {tab === 'events' && (
         <div style={{ maxHeight: 400, overflowY: 'auto' }}>
           {allEvents.length === 0 ? (
-            <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem', fontSize: '0.88rem' }}>
-              Sin eventos registrados
+            <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem', fontSize: '0.85rem' }}>
+              <div style={{ fontSize: '1.5rem', marginBottom: '0.4rem' }}>
+                {isLive ? '⏳' : '📋'}
+              </div>
+              {isLive
+                ? 'Sin eventos registrados aún en este partido'
+                : match.status === 'SCHEDULED'
+                  ? 'El partido aún no ha comenzado'
+                  : 'No hay eventos disponibles para este partido'}
             </div>
           ) : allEvents.map((ev, i) => (
             <div key={i} style={{
