@@ -65,13 +65,18 @@ export default function Teams() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
     setLoading(true);
+    setTeams([]);
     fetch(`${API_URL}/api/teams/competitions/${competition}/teams`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(r => r.json())
-      .then(data => setTeams(Array.isArray(data) ? data : []))
-      .finally(() => setLoading(false));
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(data => { if (!cancelled) setTeams(Array.isArray(data) ? data : []); })
+      .catch(() => { if (!cancelled) setTeams([]); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [competition, token]);
 
   const filtered = teams.filter(t =>
