@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import API_URL from '../../config';
 
 export default function ManageUsers() {
   const { token } = useAuth();
@@ -12,7 +13,7 @@ export default function ManageUsers() {
   const [filterRole, setFilterRole] = useState('ALL');
 
   const load = () =>
-    fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_URL}/api/users`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json()).then(setUsers);
 
   useEffect(() => { load(); }, []);
@@ -28,7 +29,7 @@ export default function ManageUsers() {
 
   const save = async (e) => {
     e.preventDefault();
-    const res = await fetch(`/api/users/${editing}`, {
+    const res = await fetch(`${API_URL}/api/users/${editing}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(form)
@@ -38,7 +39,7 @@ export default function ManageUsers() {
 
   const remove = async (id) => {
     if (!confirm('¿Eliminar este usuario?')) return;
-    await fetch(`/api/users/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    await fetch(`${API_URL}/api/users/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     load();
   };
 

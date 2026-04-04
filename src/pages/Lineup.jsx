@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../config';
 
 const PRESET_FORMATIONS = ['4-3-3', '4-4-2', '4-2-3-1', '3-5-2', '5-3-2', '4-3-2-1', '3-4-3', '5-4-1'];
 
@@ -46,7 +47,7 @@ export default function Lineup() {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/players/lineup', {
+      const res = await fetch(`${API_URL}/api/players/lineup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ formation: f }),

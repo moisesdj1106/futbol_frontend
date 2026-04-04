@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import API_URL from '../../config';
 
 const EMPTY = {
   name:'', age:'', nationality:'', club:'', position:'', position_type:'FWD',
@@ -19,7 +20,7 @@ export default function ManagePlayers() {
   const [filterClub, setFilterClub] = useState('');
 
   const load = () =>
-    fetch('/api/players', { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_URL}/api/players`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json()).then(setPlayers);
 
   useEffect(() => { load(); }, []);
@@ -38,7 +39,7 @@ export default function ManagePlayers() {
 
   const save = async (e) => {
     e.preventDefault();
-    const url = editing ? `/api/players/${editing}` : '/api/players';
+    const url = editing ? `${API_URL}/api/players/${editing}` : `${API_URL}/api/players`;
     const method = editing ? 'PUT' : 'POST';
     const res = await fetch(url, {
       method,
@@ -50,7 +51,7 @@ export default function ManagePlayers() {
 
   const remove = async (id) => {
     if (!confirm('¿Eliminar este jugador?')) return;
-    await fetch(`/api/players/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    await fetch(`${API_URL}/api/players/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     load();
   };
 

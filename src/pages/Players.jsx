@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import PlayerCard from '../components/PlayerCard';
 import PlayerModal from '../components/PlayerModal';
+import API_URL from '../config';
 
 const POSITIONS = ['ALL', 'GK', 'DEF', 'MID', 'FWD'];
 
@@ -13,7 +14,7 @@ export default function Players() {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    fetch('/api/players', { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_URL}/api/players`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json()).then(setPlayers);
   }, [token]);
 

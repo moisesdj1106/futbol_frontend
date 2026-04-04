@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useSounds } from "../hooks/useSounds";
+import API_URL from "../config";
 
 // Cuantos de cada posicion se permiten por equipo
 const POS_LIMITS = { GK: 1, DEF: 4, MID: 4, FWD: 3 };
@@ -240,7 +241,7 @@ export default function Match() {
   const eventsRef = useRef(null);
 
   useEffect(() => {
-    fetch("/api/players", { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_URL}/api/players`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json()).then(setPlayers);
   }, [token]);
 
@@ -281,7 +282,7 @@ export default function Match() {
     sounds.whistle();
 
     try {
-      const res = await fetch("/api/match/simulate", {
+      const res = await fetch(`${API_URL}/api/match/simulate`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ team1, team2 }),

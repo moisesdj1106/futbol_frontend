@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import StatBar from '../components/StatBar';
+import API_URL from '../config';
 
 const STATS = ['pace', 'shooting', 'passing', 'dribbling', 'defending', 'physical'];
 const STAT_LABELS = {
@@ -115,7 +116,7 @@ export default function Versus() {
   const [filter, setFilter] = useState('ALL');
 
   useEffect(() => {
-    fetch('/api/players', { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_URL}/api/players`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json()).then(setPlayers);
   }, [token]);
 
@@ -133,7 +134,7 @@ export default function Versus() {
     if (selected.length < 2) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/players/versus/${selected[0].id}/${selected[1].id}`, {
+      const res = await fetch(`${API_URL}/api/players/versus/${selected[0].id}/${selected[1].id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
