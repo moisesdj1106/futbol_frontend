@@ -9,6 +9,8 @@ import Lineup from './pages/Lineup';
 import ManagePlayers from './pages/admin/ManagePlayers';
 import ManageUsers from './pages/admin/ManageUsers';
 import Match from './pages/Match';
+import Teams from './pages/Teams';
+import LiveMatches from './pages/LiveMatches';
 
 function PrivateRoute({ children }) {
   const { token } = useAuth();
@@ -32,6 +34,8 @@ function AppRoutes() {
         <Route path="/versus" element={<PrivateRoute><Versus /></PrivateRoute>} />
         <Route path="/lineup" element={<PrivateRoute><Lineup /></PrivateRoute>} />
         <Route path="/match" element={<PrivateRoute><Match /></PrivateRoute>} />
+        <Route path="/teams" element={<PrivateRoute><Teams /></PrivateRoute>} />
+        <Route path="/live" element={<PrivateRoute><LiveMatches /></PrivateRoute>} />
         <Route path="/admin/players" element={<PrivateRoute><AdminRoute><ManagePlayers /></AdminRoute></PrivateRoute>} />
         <Route path="/admin/users" element={<PrivateRoute><AdminRoute><ManageUsers /></AdminRoute></PrivateRoute>} />
         <Route path="*" element={<Navigate to={token ? '/players' : '/login'} />} />

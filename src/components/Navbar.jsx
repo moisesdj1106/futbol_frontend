@@ -41,6 +41,8 @@ export default function Navbar() {
           <NavLink to="/versus" className="nav-link">Versus</NavLink>
           <NavLink to="/lineup" className="nav-link">Alineación</NavLink>
           <NavLink to="/match" className="nav-link">Partido</NavLink>
+          <NavLink to="/teams" className="nav-link">Equipos</NavLink>
+          <NavLink to="/live" className="nav-link">En Vivo</NavLink>
           {user?.role === 'admin' && (
             <>
               <span style={{ color: 'rgba(255,255,255,0.1)', margin: '0 0.2rem' }}>|</span>
@@ -118,6 +120,8 @@ export default function Navbar() {
             { to: '/versus', label: '⚡ Versus' },
             { to: '/lineup', label: '📋 Alineación' },
             { to: '/match', label: '🏟 Partido' },
+            { to: '/teams', label: '⭐ Equipos' },
+            { to: '/live', label: '🔴 En Vivo' },
           ].map(link => (
             <NavLink
               key={link.to}
