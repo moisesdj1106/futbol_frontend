@@ -59,7 +59,7 @@ export default function Matchday() {
   return (
     <div className="page-wrapper">
       <h1 className="page-title">CALENDARIO <span>DE JORNADA</span></h1>
-      <p className="page-subtitle">Todos los partidos de la jornada actual</p>
+      <p className="page-subtitle">Partidos de los últimos 7 días y próximos 14 días</p>
 
       {/* Selector liga */}
       <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
