@@ -11,6 +11,11 @@ import ManageUsers from './pages/admin/ManageUsers';
 import Match from './pages/Match';
 import Teams from './pages/Teams';
 import LiveMatches from './pages/LiveMatches';
+import Standings from './pages/Standings';
+import Scorers from './pages/Scorers';
+import Matchday from './pages/Matchday';
+import H2H from './pages/H2H';
+import TeamStats from './pages/TeamStats';
 
 function PrivateRoute({ children }) {
   const { token } = useAuth();
@@ -36,6 +41,11 @@ function AppRoutes() {
         <Route path="/match" element={<PrivateRoute><Match /></PrivateRoute>} />
         <Route path="/teams" element={<PrivateRoute><Teams /></PrivateRoute>} />
         <Route path="/live" element={<PrivateRoute><LiveMatches /></PrivateRoute>} />
+        <Route path="/standings" element={<PrivateRoute><Standings /></PrivateRoute>} />
+        <Route path="/scorers" element={<PrivateRoute><Scorers /></PrivateRoute>} />
+        <Route path="/matchday" element={<PrivateRoute><Matchday /></PrivateRoute>} />
+        <Route path="/h2h" element={<PrivateRoute><H2H /></PrivateRoute>} />
+        <Route path="/team-stats" element={<PrivateRoute><TeamStats /></PrivateRoute>} />
         <Route path="/admin/players" element={<PrivateRoute><AdminRoute><ManagePlayers /></AdminRoute></PrivateRoute>} />
         <Route path="/admin/users" element={<PrivateRoute><AdminRoute><ManageUsers /></AdminRoute></PrivateRoute>} />
         <Route path="*" element={<Navigate to={token ? '/players' : '/login'} />} />
