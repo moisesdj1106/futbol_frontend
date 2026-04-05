@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../hooks/useFavorites";
+import { useMatchNotifier, requestNotificationPermission } from "../hooks/useMatchNotifier";
 import API_URL from "../config";
 
 function formatDate(utcDate) {
@@ -18,12 +19,26 @@ const STATUS_LABEL = {
   POSTPONED: { label: "Aplazado",   color: "var(--text-muted)" },
 };
 
-function MatchCard({ match, onSelect }) {
+function MatchCard({ match, onSelect, notified, onToggleNotify }) {
   const isLive = match.status === "IN_PLAY" || match.status === "PAUSED";
   const isDone = match.status === "FINISHED";
   const status = STATUS_LABEL[match.status] || { label: match.status, color: "var(--text-muted)" };
   const home = match.score?.fullTime?.home ?? match.score?.halfTime?.home;
   const away = match.score?.fullTime?.away ?? match.score?.halfTime?.away;
+
+  const handleNotify = async (e) => {
+    e.stopPropagation();
+    const perm = await requestNotificationPermission();
+    if (perm === 'denied') {
+      alert('Las notificaciones están bloqueadas en tu navegador. Actívalas en la configuración del sitio.');
+      return;
+    }
+    if (perm === 'unsupported') {
+      alert('Tu navegador no soporta notificaciones.');
+      return;
+    }
+    onToggleNotify(match.id);
+  };
 
   return (
     <div onClick={() => onSelect(match)} style={{
@@ -39,10 +54,29 @@ function MatchCard({ match, onSelect }) {
 
       <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginBottom: "0.6rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span>{match.competition?.name}</span>
-        <span style={{ color: status.color, fontFamily: "Orbitron", fontSize: "0.62rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.3rem" }}>
-          {isLive && <span style={{ animation: "pulse 1.5s infinite" }}>●</span>}
-          {status.label}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+          {/* Botón notificación solo en partidos en vivo */}
+          {isLive && (
+            <button
+              onClick={handleNotify}
+              title={notified ? "Desactivar notificaciones" : "Notificarme cambios de marcador"}
+              style={{
+                background: notified ? "rgba(0,255,135,0.15)" : "rgba(255,255,255,0.05)",
+                border: `1px solid ${notified ? "var(--green)" : "rgba(255,255,255,0.1)"}`,
+                borderRadius: 6, padding: "0.15rem 0.5rem",
+                cursor: "pointer", fontSize: "0.75rem",
+                color: notified ? "var(--green)" : "var(--text-muted)",
+                transition: "all 0.2s", display: "flex", alignItems: "center", gap: "0.3rem",
+              }}
+            >
+              {notified ? "🔔" : "🔕"} {notified ? "ON" : "OFF"}
+            </button>
+          )}
+          <span style={{ color: status.color, fontFamily: "Orbitron", fontSize: "0.62rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.3rem" }}>
+            {isLive && <span style={{ animation: "pulse 1.5s infinite" }}>●</span>}
+            {status.label}
+          </span>
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: "0.8rem" }}>
@@ -73,6 +107,12 @@ function MatchCard({ match, onSelect }) {
       </div>
     </div>
   );
+}
+
+// Componente invisible que monitorea partidos activos y notifica cambios
+function MatchMonitor({ matchId, homeTeam, awayTeam }) {
+  useMatchNotifier(matchId, homeTeam, awayTeam, true);
+  return null;
 }
 
 function MatchModal({ match, onClose }) {
@@ -374,6 +414,16 @@ export default function LiveMatches() {
   const [liveMatches, setLiveMatches] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [notifiedMatches, setNotifiedMatches] = useState(new Set());
+
+  const toggleNotify = (matchId) => {
+    setNotifiedMatches(prev => {
+      const next = new Set(prev);
+      if (next.has(matchId)) next.delete(matchId);
+      else next.add(matchId);
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (tab !== "favorites") return;
@@ -411,7 +461,15 @@ export default function LiveMatches() {
         <span style={{ background: `${color}22`, border: `1px solid ${color}44`, borderRadius: 10, padding: "0.1rem 0.5rem", fontSize: "0.6rem" }}>{items.length}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-        {items.map(m => <MatchCard key={m.id} match={m} onSelect={setSelectedMatch} />)}
+        {items.map(m => (
+          <MatchCard
+            key={m.id}
+            match={m}
+            onSelect={setSelectedMatch}
+            notified={notifiedMatches.has(m.id)}
+            onToggleNotify={toggleNotify}
+          />
+        ))}
       </div>
     </div>
   );
@@ -462,6 +520,20 @@ export default function LiveMatches() {
       )}
 
       {selectedMatch && <MatchModal match={selectedMatch} onClose={() => setSelectedMatch(null)} />}
+
+      {/* Monitores invisibles para partidos con notificación activa */}
+      {[...notifiedMatches].map(matchId => {
+        const m = [...displayMatches].find(x => x.id === matchId);
+        if (!m) return null;
+        return (
+          <MatchMonitor
+            key={matchId}
+            matchId={matchId}
+            homeTeam={m.homeTeam?.shortName || m.homeTeam?.name}
+            awayTeam={m.awayTeam?.shortName || m.awayTeam?.name}
+          />
+        );
+      })}
     </div>
   );
 }
