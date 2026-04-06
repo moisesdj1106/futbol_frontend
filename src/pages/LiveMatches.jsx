@@ -110,8 +110,8 @@ function MatchCard({ match, onSelect, notified, onToggleNotify }) {
 }
 
 // Componente invisible que monitorea partidos activos y notifica cambios
-function MatchMonitor({ matchId, homeTeam, awayTeam }) {
-  useMatchNotifier(matchId, homeTeam, awayTeam, true);
+function MatchMonitor({ matchId, homeTeam, awayTeam, token }) {
+  useMatchNotifier(matchId, homeTeam, awayTeam, true, token);
   return null;
 }
 
@@ -415,8 +415,63 @@ export default function LiveMatches() {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [loading, setLoading] = useState(false);
   const [notifiedMatches, setNotifiedMatches] = useState(new Set());
+  const refreshRef = useRef(null);
 
-  const toggleNotify = (matchId) => {
+  const loadFavorites = () => {
+    fetch(`${API_URL}/api/teams/favorites/matches`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(data => setMatches(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  };
+
+  const loadLive = () => {
+    fetch(`${API_URL}/api/teams/live`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(data => setLiveMatches(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  };
+
+  // Carga inicial con loading
+  useEffect(() => {
+    if (tab !== "favorites") return;
+    setLoading(true);
+    fetch(`${API_URL}/api/teams/favorites/matches`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(data => setMatches(Array.isArray(data) ? data : []))
+      .catch(() => setMatches([]))
+      .finally(() => setLoading(false));
+  }, [tab, favorites.length, token]);
+
+  useEffect(() => {
+    if (tab !== "live") return;
+    setLoading(true);
+    fetch(`${API_URL}/api/teams/live`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(data => setLiveMatches(Array.isArray(data) ? data : []))
+      .catch(() => setLiveMatches([]))
+      .finally(() => setLoading(false));
+  }, [tab, token]);
+
+  // Auto-refresh cada 60s sin mostrar loading
+  useEffect(() => {
+    clearInterval(refreshRef.current);
+    refreshRef.current = setInterval(() => {
+      if (tab === "favorites") loadFavorites();
+      else loadLive();
+    }, 60000);
+    return () => clearInterval(refreshRef.current);
+  }, [tab, token]);
+
+  const toggleNotify = async (matchId) => {
+    const perm = await requestNotificationPermission();
+    if (perm === 'denied') {
+      alert('Notificaciones bloqueadas. Actívalas en la configuración del navegador para este sitio.');
+      return;
+    }
+    if (perm === 'unsupported') {
+      alert('Tu navegador no soporta notificaciones.');
+      return;
+    }
     setNotifiedMatches(prev => {
       const next = new Set(prev);
       if (next.has(matchId)) next.delete(matchId);
@@ -531,6 +586,7 @@ export default function LiveMatches() {
             matchId={matchId}
             homeTeam={m.homeTeam?.shortName || m.homeTeam?.name}
             awayTeam={m.awayTeam?.shortName || m.awayTeam?.name}
+            token={token}
           />
         );
       })}
