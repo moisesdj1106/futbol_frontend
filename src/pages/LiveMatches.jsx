@@ -414,7 +414,12 @@ export default function LiveMatches() {
   const [liveMatches, setLiveMatches] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [notifiedMatches, setNotifiedMatches] = useState(new Set());
+  const [notifiedMatches, setNotifiedMatches] = useState(() => {
+    try {
+      const saved = localStorage.getItem('notifiedMatches');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch { return new Set(); }
+  });
   const refreshRef = useRef(null);
 
   const loadFavorites = () => {
@@ -476,6 +481,7 @@ export default function LiveMatches() {
       const next = new Set(prev);
       if (next.has(matchId)) next.delete(matchId);
       else next.add(matchId);
+      localStorage.setItem('notifiedMatches', JSON.stringify([...next]));
       return next;
     });
   };
